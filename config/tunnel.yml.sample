@@ -1,0 +1,4 @@
+tunnel:
+  public_host_username: your_public_host_username
+  public_host: your_public_host
+  server_alive_interval: 0
