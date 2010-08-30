@@ -1,6 +1,9 @@
 require.paths.unshift(__dirname + '/lib');
 require.paths.unshift(__dirname);
+require.paths.unshift(__dirname + '/deps/connect/lib')
 require.paths.unshift(__dirname + '/deps/express/lib')
+require.paths.unshift(__dirname + '/deps/express/support')
+
 
 var sys = require('sys'),
   fs = require('fs'),
@@ -19,37 +22,38 @@ db.open(function(p_db) {
   app.configure(function(){
     app.set('root', __dirname);
     app.set('db', db);
-    app.use(express.staticProvider(__dirname + "public"));
-    app.use(express.cookieDecoder);
-    app.use(express.logger());
+      app.use(express.staticProvider(__dirname));
+      //app.use(express.cookieDecoder);
+      app.use(express.logger());
+      app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
 
-    try {
-      var configJSON = fs.readFileSync(__dirname + "/config/app.json");
-    } catch(e) {
-      sys.log("File config/app.json not found.  Try: `cp config/app.json.sample config/app.json`");
-    }
 
-    sys.log("Started server with config: ");
-    sys.puts(configJSON);
-    var config = JSON.parse(configJSON.toString());
+      try {
+        var configJSON = fs.readFileSync(__dirname + "/config/app.json");
+      } catch(e) {
+        sys.log("File config/app.json not found.  Try: `cp config/app.json.sample config/app.json`");
+      }
 
-    //this.server.port = config.monitor_port;
-    app.port = config.monitor_port;
+      sys.log("Started server with config: ");
+      sys.puts(configJSON);
+      var config = JSON.parse(configJSON.toString());
 
-    for(var i in config) {
-      app.set(i, config[i]);
-    }
+      //this.server.port = config.monitor_port;
+      //app.port = config.monitor_port;
 
+      for(var i in config) {
+        app.set(i, config[i]);
+      }    
   });
 
-  app.get('/', function(){
+  app.get('/', function(req, res){
     authenticate(this);
-    this.render('index.html.ejs');
+    res.render('index.html.ejs');
   });
 
-  app.get('/weekly', function() {
+  app.get('/weekly', function(req, res){
     authenticate(this);
-    this.render('weekly.html.ejs');
+    res.render('weekly.html.ejs');
   });
 
   app.get('/login', function() {
@@ -91,11 +95,11 @@ db.open(function(p_db) {
     });
   });
 
-  app.listen();
+  app.listen(app.set('monitor_port'));
 });
 
 var authenticate = function(req) {
-  if(set('password') != req.cookies['not_secret']) {
-    req.redirect('/login');
-  }
+  // if(set('password') != req.cookies['not_secret']) {
+  //     req.redirect('/login');
+  //   }
 };
