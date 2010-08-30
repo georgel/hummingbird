@@ -50,9 +50,9 @@ Hummingbird.WebSocket.prototype = {
     if(document.location.search.match(/ws_server/)) {
       var wsServerParam = document.location.search.match(/ws_server=([^\&\#]+)/) || [];
       var wsPortParam = document.location.search.match(/ws_port=([^\&\#]+)/) || [];
-      var wsServer = "ws://" + wsServerParam[1] + ":" + (wsPortParam[1] || 8080);
+      var wsServer = "ws://" + wsServerParam[1] + ":" + (wsPortParam[1] || 6990);
     } else {
-      var wsServer = "ws://" + document.location.hostname + ":8080";
+      var wsServer = "ws://" + document.location.hostname + ":6990";
     }
     return wsServer;
   }

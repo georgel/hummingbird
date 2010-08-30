@@ -1,9 +1,9 @@
 {
   "name" : "Hummingbird",
 
-  "monitor_port" : 8888,
-  "tracking_port" : 8000,
-  "websocket_port" : 8080,
+  "monitor_port" : 4990,
+  "tracking_port" : 5990,
+  "websocket_port" : 6990,
 
   "username" : "admin",
   "password" : "change_this",

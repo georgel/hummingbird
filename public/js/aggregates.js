@@ -12,7 +12,7 @@ Hummingbird.Aggregates.start = function() {
   lastHourDiv.find('canvas').get(0).width = $(window).width() - 160;
   var lastHourGraph = new Hummingbird.Graph(lastHourDiv, { ratePerSecond: 20, logDate: true });
 
-  var wsServer = "ws://" + document.location.hostname + ":8080/aggregates";
+  var wsServer = "ws://" + document.location.hostname + ":6990/aggregates";
   var ws = new WebSocket(wsServer);
 
   ws.onmessage = function(evt) {
