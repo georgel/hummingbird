@@ -24,7 +24,7 @@ db.open(function(p_db) {
     app.set('db', db);
     app.use(express.staticProvider(__dirname));
     app.set('views', __dirname + '/views');
-    //app.use(express.cookieDecoder);
+    app.use(express.cookieDecoder);
     app.use(express.logger());
     app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
 
@@ -48,12 +48,12 @@ db.open(function(p_db) {
   });
 
   app.get('/', function(req, res){
-    authenticate(this);
+    authenticate(req);
     res.render('index.html.ejs');
   });
 
   app.get('/weekly', function(req, res){
-    authenticate(this);
+    authenticate(req);
     res.render('weekly.html.ejs');
   });
 
@@ -74,12 +74,11 @@ db.open(function(p_db) {
   });
 
   app.get('/sale_list', function(req, res){
-    authenticate(this);
-    var self = this;
+    authenticate(req);
 
     if(app.set('sales_uri')) {
       svc.fetchJSON(set('sales_uri'), function(data) {
-        self.contentType('json');
+        res.contentType('json');
         res.send(data,200);
       });
     } else {
@@ -88,7 +87,7 @@ db.open(function(p_db) {
   });
 
   app.get('/week.json', function(req, res){
-    authenticate(this);
+    authenticate(req);
     weekly.findByDay(app.set('db'), function(data) {
       res.contentType('json');
       res.send(data, 200);
@@ -99,7 +98,7 @@ db.open(function(p_db) {
 });
 
 var authenticate = function(req) {
-  // if(set('password') != req.cookies['not_secret']) {
-  //     req.redirect('/login');
-  //   }
+  if(app.set('password') != req.cookies['not_secret']) {
+    req.redirect('/login');
+  }
 };
