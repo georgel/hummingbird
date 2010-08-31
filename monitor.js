@@ -57,8 +57,8 @@ db.open(function(p_db) {
     res.render('weekly.html.ejs');
   });
 
-  app.get('/login', function() {
-    this.render('login.html.ejs');
+  app.get('/login', function(req, res){
+    res.render('login.html.ejs');
   });
 
   app.post('/login', function() {
