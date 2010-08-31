@@ -14,8 +14,6 @@ var sys = require('sys'),
 var express = require('express');
 app = express.createServer();
 
-//require('express/plugins');
-
 db = new mongo.Db('hummingbird', new mongo.Server('localhost', 27017, {}), {});
 
 db.open(function(p_db) {
@@ -38,9 +36,6 @@ db.open(function(p_db) {
     sys.log("Started server with config: ");
     sys.puts(configJSON);
     var config = JSON.parse(configJSON.toString());
-
-    //this.server.port = config.monitor_port;
-    //app.port = config.monitor_port;
 
     for(var i in config) {
       app.set(i, config[i]);
