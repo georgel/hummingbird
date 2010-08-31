@@ -22,28 +22,29 @@ db.open(function(p_db) {
   app.configure(function(){
     app.set('root', __dirname);
     app.set('db', db);
-      app.use(express.staticProvider(__dirname));
-      //app.use(express.cookieDecoder);
-      app.use(express.logger());
-      app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
+    app.use(express.staticProvider(__dirname));
+    app.set('views', __dirname + '/views');
+    //app.use(express.cookieDecoder);
+    app.use(express.logger());
+    app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
 
 
-      try {
-        var configJSON = fs.readFileSync(__dirname + "/config/app.json");
-      } catch(e) {
-        sys.log("File config/app.json not found.  Try: `cp config/app.json.sample config/app.json`");
-      }
+    try {
+      var configJSON = fs.readFileSync(__dirname + "/config/app.json");
+    } catch(e) {
+      sys.log("File config/app.json not found.  Try: `cp config/app.json.sample config/app.json`");
+    }
 
-      sys.log("Started server with config: ");
-      sys.puts(configJSON);
-      var config = JSON.parse(configJSON.toString());
+    sys.log("Started server with config: ");
+    sys.puts(configJSON);
+    var config = JSON.parse(configJSON.toString());
 
-      //this.server.port = config.monitor_port;
-      //app.port = config.monitor_port;
+    //this.server.port = config.monitor_port;
+    //app.port = config.monitor_port;
 
-      for(var i in config) {
-        app.set(i, config[i]);
-      }    
+    for(var i in config) {
+      app.set(i, config[i]);
+    }    
   });
 
   app.get('/', function(req, res){
@@ -72,17 +73,17 @@ db.open(function(p_db) {
     }
   });
 
-  app.get('/sale_list', function() {
+  app.get('/sale_list', function(req, res){
     authenticate(this);
     var self = this;
 
-    if(set('sales_uri')) {
+    if(app.set('sales_uri')) {
       svc.fetchJSON(set('sales_uri'), function(data) {
         self.contentType('json');
-        self.respond(200, data);
+        res.send(data,200);
       });
     } else {
-      self.respond(500, "No sales uri");
+      res.send("No sales uri", 500);
     }
   });
 
