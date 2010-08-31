@@ -87,12 +87,11 @@ db.open(function(p_db) {
     }
   });
 
-  app.get('/week.json', function() {
+  app.get('/week.json', function(req, res){
     authenticate(this);
-    var self = this;
-    weekly.findByDay(Express.settings['db'], function(data) {
-      self.contentType('json');
-      self.respond(200, data);
+    weekly.findByDay(app.set('db'), function(data) {
+      res.contentType('json');
+      res.send(data, 200);
     });
   });
 
