@@ -22,7 +22,7 @@ db.open(function(p_db) {
   app.configure(function(){
     app.set('root', __dirname);
     app.set('db', db);
-    app.use(express.staticProvider(__dirname));
+    app.use(express.staticProvider(__dirname + '/public'));
     app.set('views', __dirname + '/views');
     app.use(express.cookieDecoder);
     app.use(express.logger());
