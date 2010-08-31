@@ -22,10 +22,10 @@ db.open(function(p_db) {
     app.set('db', db);
     app.use(express.staticProvider(__dirname + '/public'));
     app.set('views', __dirname + '/views');
-    app.use(express.cookieDecoder);
+    app.use(express.cookieDecoder());
+    app.use(express.bodyDecoder());
     app.use(express.logger());
     app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
-
 
     try {
       var configJSON = fs.readFileSync(__dirname + "/config/app.json");
@@ -43,12 +43,12 @@ db.open(function(p_db) {
   });
 
   app.get('/', function(req, res){
-    authenticate(req);
+    authenticate(req, res);
     res.render('index.html.ejs');
   });
 
   app.get('/weekly', function(req, res){
-    authenticate(req);
+    authenticate(req, res);
     res.render('weekly.html.ejs');
   });
 
@@ -56,20 +56,19 @@ db.open(function(p_db) {
     res.render('login.html.ejs');
   });
 
-  app.post('/login', function() {
-    if(this.params.post.password == set('password')) {
-      this.cookie('not_secret', this.params.post.password);
-
-      sys.log("Auth succeeded for " + this.params.post.username);
-      this.redirect('/');
+  app.post('/login', function(req, res) {
+    if(req.body.password == app.set('password')) {
+      res.header('Set-Cookie', 'not_secret='+ req.body.password);
+      sys.log("Auth succeeded for " + req.body.username);
+      res.redirect('/');
     } else {
-      sys.log("Auth failed for " + this.params.post.username);
-      this.redirect('/login');
+      sys.log("Auth failed for " + req.body.username);
+      res.redirect('/login');
     }
   });
 
   app.get('/sale_list', function(req, res){
-    authenticate(req);
+    authenticate(req, res);
 
     if(app.set('sales_uri')) {
       svc.fetchJSON(set('sales_uri'), function(data) {
@@ -82,7 +81,7 @@ db.open(function(p_db) {
   });
 
   app.get('/week.json', function(req, res){
-    authenticate(req);
+    authenticate(req, res);
     weekly.findByDay(app.set('db'), function(data) {
       res.contentType('json');
       res.send(data, 200);
@@ -92,8 +91,9 @@ db.open(function(p_db) {
   app.listen(app.set('monitor_port'));
 });
 
-var authenticate = function(req) {
+var authenticate = function(req, res) {
+  //return true; //until I figure out how to set a cookie. see http://tinyurl.com/295suzq
   if(app.set('password') != req.cookies['not_secret']) {
-    req.redirect('/login');
+    res.redirect('/login');
   }
 };
