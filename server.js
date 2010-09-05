@@ -1,19 +1,11 @@
-require.paths.unshift(__dirname + '/lib');
-require.paths.unshift(__dirname);
+var ENV = require(__dirname + '/lib/environment')
 
 var sys = require('sys'),
-  http = require('http'),
-  weekly = require('weekly'),
-  fs = require('fs'),
-  mongo = require('deps/node-mongodb-native/lib/mongodb'),
-  Hummingbird = require('hummingbird').Hummingbird;
-
-try {
-  var configJSON = fs.readFileSync(__dirname + "/config/app.json");
-} catch(e) {
-  sys.log("File config/app.json not found.  Try: `cp config/app.json.sample config/app.json`");
-}
-var config = JSON.parse(configJSON.toString());
+    http = require('http'),
+    weekly = require('weekly'),
+    fs = require('fs'),
+    mongo = require('mongodb'),
+    Hummingbird = require('hummingbird').Hummingbird;
 
 db = new mongo.Db('hummingbird', new mongo.Server('localhost', 27017, {}), {});
 
@@ -30,8 +22,8 @@ db.open(function(p_db) {
       } catch(e) {
         hummingbird.handleError(req, res, e);
       }
-    }).listen(config.tracking_port);
+    }).listen(ENV.config.tracking_port);
   });
 
-  sys.puts('Tracking server running at http://*:' + config.tracking_port + '/tracking_pixel.gif');
+  sys.puts('Tracking server running at http://*:' + ENV.config.tracking_port + '/tracking_pixel.gif');
 });

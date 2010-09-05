@@ -1,15 +1,10 @@
-require.paths.unshift(__dirname + '/lib');
-require.paths.unshift(__dirname);
-require.paths.unshift(__dirname + '/deps/connect/lib')
-require.paths.unshift(__dirname + '/deps/express/lib')
-require.paths.unshift(__dirname + '/deps/express/support')
-
+var ENV = require(__dirname + '/lib/environment')
 
 var sys = require('sys'),
-  fs = require('fs'),
-  mongo = require('deps/node-mongodb-native/lib/mongodb'),
-  svc = require('service_json'),
-  weekly = require('weekly');
+    fs = require('fs'),
+    mongo = require('mongodb'),
+    svc = require('service_json'),
+    weekly = require('weekly');
 
 var express = require('express');
 app = express.createServer();
@@ -27,18 +22,8 @@ db.open(function(p_db) {
     app.use(express.logger());
     app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
 
-    try {
-      var configJSON = fs.readFileSync(__dirname + "/config/app.json");
-    } catch(e) {
-      sys.log("File config/app.json not found.  Try: `cp config/app.json.sample config/app.json`");
-    }
-
-    sys.log("Started server with config: ");
-    sys.puts(configJSON);
-    var config = JSON.parse(configJSON.toString());
-
-    for(var i in config) {
-      app.set(i, config[i]);
+    for(var i in ENV.config) {
+      app.set(i, ENV.config[i]);
     }    
   });
 
