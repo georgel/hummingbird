@@ -22,3 +22,6 @@
 [submodule "deps/connect"]
 	path = deps/connect
 	url = http://github.com/senchalabs/connect.git
+[submodule "public/vendor/web-socket-js"]
+	path = public/vendor/web-socket-js
+	url = git://github.com/gimite/web-socket-js.git
