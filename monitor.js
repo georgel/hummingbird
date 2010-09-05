@@ -92,7 +92,7 @@ db.open(function(p_db) {
 });
 
 var authenticate = function(req, res) {
-  //return true; //until I figure out how to set a cookie. see http://tinyurl.com/295suzq
+  return true; //until I figure out how to set a cookie. see http://tinyurl.com/295suzq
   if(app.set('password') != req.cookies['not_secret']) {
     res.redirect('/login');
   }
