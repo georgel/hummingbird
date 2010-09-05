@@ -25,3 +25,6 @@
 [submodule "public/vendor/web-socket-js"]
 	path = public/vendor/web-socket-js
 	url = git://github.com/gimite/web-socket-js.git
+[submodule "deps/Socket.io-node"]
+	path = deps/Socket.io-node
+	url = http://github.com/LearnBoost/Socket.IO-node.git
