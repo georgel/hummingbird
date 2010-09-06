@@ -38,50 +38,52 @@ Hummingbird.WebSocket.prototype = {
     console.log("start() not implemented");
   },
 
-  webSocketEnabled: function() {
-    if(!("WebSocket" in window)) {
-      console.log("Sorry, the build of your browser does not support WebSockets. Please try latest Chrome or Webkit nightly");
-      return false;
-    }
-    return true;
-  },
-
-  webSocketURI: function() {
+  webSocketHost : function() {
     if(document.location.search.match(/ws_server/)) {
       var wsServerParam = document.location.search.match(/ws_server=([^\&\#]+)/) || [];
-      var wsPortParam = document.location.search.match(/ws_port=([^\&\#]+)/) || [];
-      var wsServer = "ws://" + wsServerParam[1] + ":" + (wsPortParam[1] || 6990);
+      return wsServerParam[1];
     } else {
-      var wsServer = "ws://" + document.location.hostname + ":6990";
+      return document.location.hostname;
     }
-    return wsServer;
-  }
+  },
+  
+  webSocketPort : function() {
+    if(document.location.search.match(/ws_server/)) {
+      var wsPortParam = document.location.search.match(/ws_port=([^\&\#]+)/) || [];
+      return wsPortParam[1]|| 5990;
+    } else {
+      return 5990;
+    }
+  },
+  
+  webSocketTransports : ['websocket','flashsocket']
 }
 
 // DASHBOARD WEBSOCKET
 
-Hummingbird.WebSocket.Dashboard = function() { }
+Hummingbird.WebSocket.Dashboard = function() { 
+}
 Hummingbird.WebSocket.Dashboard.prototype = new Hummingbird.WebSocket;
 
 Hummingbird.WebSocket.Dashboard.prototype.start = function() {
-  if (!this.webSocketEnabled())
-    return;
-
+  console.log('starting');
   var totalDiv = $("#log");
   totalDiv.find('canvas').get(0).width = $(window).width() - 160;
-  var totalGraph = new Hummingbird.Graph(totalDiv, { ratePerSecond: 20, logDate: true });
+  this.totalGraph = new Hummingbird.Graph(totalDiv, { ratePerSecond: 20, logDate: true });
 
   var cartAdds = $("#cart_adds");;
   cartAdds.find('canvas').get(0).width = $(window).width() - 160;
-  var cartAddsGraph = new Hummingbird.Graph(cartAdds, { ratePerSecond: 20 });
+  this.cartAddsGraph = new Hummingbird.Graph(cartAdds, { ratePerSecond: 20 });
 
-  var wsServer = this.webSocketURI();
-  var ws = new WebSocket(wsServer);
-
+  var wsHost = this.webSocketHost();
+  var wsPort = this.webSocketPort();
+  var wsTransports = this.webSocketTransports;
+  var ws = new io.Socket(wsHost, {'port':wsPort, 'resource':'metrics', 'transports':wsTransports});
+  
   var self = this;
 
-  ws.onmessage = function(evt) {
-    var data = JSON.parse(evt.data);
+  ws.on('message', function(socket_data) {
+    var data = JSON.parse(socket_data);
 
     if(typeof(data.sales) != "undefined") {
       $.each(Hummingbird.saleGraphs, function(key) {
@@ -92,17 +94,18 @@ Hummingbird.WebSocket.Dashboard.prototype.start = function() {
         }
       });
     } else if(typeof(data.total) != "undefined") {
-      totalGraph.drawLogPath(data.total);
+      self.totalGraph.drawLogPath(data.total);
       if(data.cartAdds) {
-        cartAddsGraph.drawLogPath(data.cartAdds);
+        self.cartAddsGraph.drawLogPath(data.cartAdds);
       } else {
-        cartAddsGraph.drawLogPath(0.0);
+        self.cartAddsGraph.drawLogPath(0.0);
       }
     }
-  }
+  });
 
-  ws.onclose = function() { self.onclose(); }
-  ws.onopen = function() { self.onopen(); }
+  ws.on('close', function() { self.onclose(); });
+  ws.on('connect', function() { self.onopen(); });
+  ws.connect();
 }
 
 // WEEKLY WEBSOCKET
@@ -111,16 +114,16 @@ Hummingbird.WebSocket.Weekly = function() { }
 Hummingbird.WebSocket.Weekly.prototype = new Hummingbird.WebSocket;
 
 Hummingbird.WebSocket.Weekly.prototype.start = function() {
-  if (!this.webSocketEnabled())
-    return;
-
-  var wsServer = this.webSocketURI();
-  var ws = new WebSocket(wsServer);
+  
+  var wsHost = this.webSocketHost();
+  var wsPort = this.webSocketPort();
+  var wsTransports = this.webSocketTransports;
+  var ws = new io.Socket(wsHost, {'port':wsPort, 'resource':'metrics', 'transports':wsTransports});
 
   var self = this;
 
-  ws.onmessage = function(evt) {
-    var data = JSON.parse(evt.data);
+  ws.on('message', function(socket_data) {
+    var data = JSON.parse(socket_data);
     if(data.total && data.total > 0) {
       var el = $("div.day:first-child div.all_views");
       var prevTotal = el.data("total");
@@ -131,9 +134,10 @@ Hummingbird.WebSocket.Weekly.prototype.start = function() {
       var prevCartAdds = el.data("cart_adds");
       el.text((prevCartAdds + data.cartAdds).commify()).data('cart_adds', prevCartAdds + data.cartAdds);
     }
-  };
+  });
 
-  ws.onclose = function() { self.onclose(); }
-  ws.onopen = function() { self.onopen(); }
+  ws.on('close', function() { self.onclose(); });
+  ws.on('connect', function() { self.onopen(); });
+  ws.connect();
 }
 
