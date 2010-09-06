@@ -25,3 +25,6 @@
 [submodule "deps/Socket.io-node"]
 	path = deps/Socket.io-node
 	url = http://github.com/LearnBoost/Socket.IO-node.git
+[submodule "public/vendor/socket.io"]
+	path = public/vendor/socket.io
+	url = http://github.com/LearnBoost/Socket.IO.git
