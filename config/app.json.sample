@@ -3,7 +3,6 @@
 
   "monitor_port" : 4990,
   "tracking_port" : 5990,
-  "websocket_port" : 6990,
 
   "username" : "admin",
   "password" : "change_this",
