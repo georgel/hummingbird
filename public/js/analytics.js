@@ -100,7 +100,7 @@ Hummingbird.Graph.prototype = {
   },
 
   shiftCanvas: function(x, y) {
-    this.context.putImageData(this.context.getImageData(x, y, this.canvas.width, this.canvas.height), 0, 0);
+    this.context.putImageData(this.context.getImageData(x, y, (this.canvas.width - x), (this.canvas.height - y)), 0, 0);
   },
 
   setupContext: function() {
