@@ -15,14 +15,17 @@ db.addListener("error", function(error) {
 
 db.open(function(p_db) {
   var hummingbird = new Hummingbird();
-  hummingbird.init(db, function() {
-    http.createServer(function(req, res) {
+  hummingbird.setupDb(db, function() {
+    http = http.createServer(function(req, res) {
       try {
         hummingbird.serveRequest(req, res);
       } catch(e) {
         hummingbird.handleError(req, res, e);
       }
-    }).listen(ENV.config.tracking_port);
+    })
+    hummingbird.setupWebSocket(http);
+    hummingbird.addAllMetrics(db);
+    http.listen(ENV.config.tracking_port);
   });
 
   sys.puts('Tracking server running at http://*:' + ENV.config.tracking_port + '/tracking_pixel.gif');
